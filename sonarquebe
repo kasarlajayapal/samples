@@ -257,3 +257,20 @@ For Jenkins :
 JDK :1.8
 Maven :3.3.3
 Additional Properties :-s ./${settings} -Dmaven.repo.local=${WORKSPACE}/.maven/repo -Dsonar.profile="profile_Java"
+
+project -pom.xml
+<properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <jacoco-maven-plugin.version>0.7.7.201606060606</jacoco-maven-plugin.version>
+        <sonar.plugin.version>3.2</sonar.plugin.version>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <sonar.exclusions>
+            **/generated-sources/**
+        </sonar.exclusions>
+        <sonar.test.exclusions>
+            **/**
+        </sonar.test.exclusions>
+    </properties>
