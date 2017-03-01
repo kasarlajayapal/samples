@@ -1,0 +1,259 @@
+Quality of the code is essential for agile development environment as there can be frequent changes in requirements which lead to frequent code changes. Therefore the source code should be written in a way that it can be maintained and extended easily. In order to achieve this, developers should be thoroughly concerned about the coding standards and best practices.  SonarQube can be highly beneficial for developers to ensure that their code is in high quality. .
+What is SonarQube ?
+SonarQube is a free and open source code quality measuring and management tool which is developed using java and maintained by sonarsource.  You can download SonarQube, install locally and use it as it is, or else you can develop a customized version by specifying your own rules.
+SonarQube is a code quality tool that analyzes a project against a selected ruleset in order to gauge quality. We will install a local instance in order to verify our code before we push to the server.
+ 
+Seven axes of quality
+Bugs and Potential Bugs
+Coding Standards Breach
+Duplications
+Lack of Unit Tests
+Bad Distribution of Complexity
+Spaghetti Design
+Not Enough or Too Many Comments
+ 
+There are two ways of executing 
+1Manually executing a sonar-runner
+2)Combination with Continuous integration (CI) such as Jenkins,Hudson etc.
+ 
+The result of An analysis are shown in fancy web front-end with "RED" and "GREEN" .
+Issues List Drill Down to Project Level to single class Level.
+ 
+Scope of Analysis :Type of File & DATA
+The outcome of Analysis will be Quality measure and issues(Instance where coding rules were broken).
+On All Languages ,Data will pull from supported SCM Providers(ex:SVN,git etc).
+It will be check the code Analysis both Static and Compiled code(ex :.java and .class)
+Unrecognized file:
+By default, Only files that are recognized by language plugin are loaded into the project during analysis.
+For Example:
+If our sonarQuebe has the only two plugins all .java and .js files will be loaded and .xml files are ignored by sonar server.
+ 
+Which File and What's Saved:
+there are  three Different Modes:
+we can switch among the three modes by using sonar.analysis.mode = "";
+1)Publish :This is default. This mode Analysis every thing that's analyzable for Languages in Questions and pushes the result into server processing.
+2)Preview : is typically used to determine whether code changes are good enough to move forward merge with SCM(git,svn).
+3)Issues :Is like a "Preview", for use by tools.You should never need to use it manually.
+ 
+Can SonarQube identify all the code quality issues in your code ?
+No. It will help you to write good intended, duplication free, unit tested source code which can be understood easily. It also helps you to maintain your code according to the standard coding best practices. But with this we need to do peer reviews because still there can be places that need to refactor or that can be replaced by a design pattern. Beyond that there are extensive amount of features available in SonarQube to improve the quality of your code
+Installing SonarQube Server :
+Windows :
+Download a distribution of the SonarQube Server at the following location: https://sonarsource.bintray.com/Distribution/sonarqube/sonarqube-5.2.zip
+Unzip into C:\Sonar directory
+cd into the bin directory to exectute the installer
+cd C:\Sonar\sonarqube-5.2\bin\windows-x86-64
+StartSonar.bat
+Linux:
+Install MySQL 5.x server and client with the following commands:
+sudo apt-get mysql-server
+sudo apt-get mysql-client
+Create a directory for Sonar with the following command: sudo mkdir /opt/sonar
+Change your directory location to /opt/sonar and run the following commands:
+sudo wget https://sonarsource.bintray.com/Distribution/sonarqube/sonarqube-5.1.zip
+sudo unzip sonarqube-5.1.zip
+Start a MySQL session with mysql -u root -p. Run the following commands to create a Sonar database and user: 
+CREATE DATABASE sonar CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE USER 'sonar' IDENTIFIED BY 'sonar';
+GRANT ALL ON sonar.* TO 'sonar'@'%' IDENTIFIED BY 'sonar'; 
+GRANT ALL ON sonar.* TO 'sonar'@'localhost' IDENTIFIED BY 'sonar';
+FLUSH PRIVILEGES;
+Edit the /opt/sonar/sonarqube-5.1/conf/sonar.properties file to configure the database used by SonarQube and web server. Uncomment the following lines
+sonar.jdbc.username=sonar
+sonar.jdbc.password=sonar
+sonar.jdbc.url=jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance
+sonar.web.host=127.0.0.1
+sonar.web.port=9000
+Edit the Maven settings file located at ~/.m2/settings.xml:
+
+Add or change the Sonar plugin version under the properties of the Nexus profile:
+<mvn.sonar.plugin.version>2.3</mvn.sonar.plugin.version>
+ 
+Add the following to your plugin groups and profiles:
+<pluginGroup>org.sonarsource.scanner.maven</pluginGroup>
+<profile>
+  <id>sonar</id>
+  <activation>
+    <activeByDefault>true</activeByDefault>
+  </activation>
+  <properties>
+    <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar</sonar.jdbc.url>
+    <sonar.jdbc.username><!-- MySQL root username --></sonar.jdbc.username>
+    <sonar.jdbc.password><!-- MySQL root password --></sonar.jdbc.password>
+    <sonar.jdbc.driver>com.mysql.jdbc.Driver</sonar.jdbc.driver>
+    <sonar.host.url>http://localhost:9000</sonar.host.url>
+  </properties>
+</profile>
+Comment out the following the lines if they appear in your settings.xml under the nexus profile. We will use the default Capital One Sonar profile and quality gate:
+<sonar.profile><!-- Profile --></sonar.profile>
+<sonar.qualitygate><!-- Quality Gate --></sonar.qualitygate>
+Run mvn sonar:sonar in the project directory containing the parent POM to generate an analysis report. The generated report can be found in the SonarQube dashboard at http://localhost:9000
+Installing Language Plugin
+The download of SonarQube will automatically come with JAVA as the language to analyze. To install additional languages you will need to download the appropriate plugin
+ Navigate to the plugin page: http://docs.sonarqube.org/display/PLUG/Plugin+Library
+Click on the link for the applicable language (e.g. JavaScript,C/C++,XML,Web,Flex / ActionScript,PL/SQL)
+Click the download link for the plugin
+Move the downloaded jar into $SONARQUBE_HOME/extensions/plugins.
+Running the SonarQube Server
+Go into the bin directory
+cd C:\Sonar\sonarqube-5.2\bin\windows-x86-64
+Run the bat file 
+StartSonar.bat (It will start at default port number of 9000)
+Launch the following URL in your browser: http://localhost:9000/
+Login to the console as administrator 
+username :admin
+password  :admin
+Click the Quality Profiles link on the tool bar and verify that the language plugin previously installed is available(By default Java will be installed)
+
+Sonar Runner
+Sonar Runner is used to execute the analysis against a specific project.
+Installing Sonar Runner
+Download the distribution for Sonar-Runner at the following location: http://repo1.maven.org/maven2/org/codehaus/sonar/runner/sonar-runner-dist/2.4/sonar-runner-dist-2.4.zip
+Unzip into C:\Sonar directory
+Add a SONAR_RUNNER_HOME environment variable to your profile and set it to the install directory for the Sonar Runner
+right click on my computer -->properties -->Advanced system settings ---->Advanced (it's default selected) ---->Environment Variables ---> User Variable --->click on New -->it will open another window
+variable name : SONAR_RUNNER_HOME
+variable value :C:\Sonar\sonar-runner-2.4
+update the PATH: .../%SONAR_RUNNER_HOME%/bin
+Edit the properties file
+go to $SONAR_RUNNER_HOME/conf/sonar-runner.properties
+Uncomment the following line: #sonar.host.url=http://localhost:9000
+Running analysis for a project:
+Configuring/Running the Sonar-Runner tool
+cd into the root directory of the project(ex: cd C:\Users\jayapal\git\Impatus)
+Create a sonar-project.properties file(besides the pom file)
+cd into the root directory of the project
+Create a sonar-project.properties file
+Key
+Description
+sonar.projectKey	
+The project key that is unique for each project. 
+Allowed characters are: letters, numbers, '-', '_', '.' and ':', with at least one non-digit. 
+When using Maven, it is automatically set to <groupId>:<artifactId>.
+sonar.projectName	Name of the project that will be displayed on the web interface.
+Set through <name> when using Maven
+sonar.projectVersion	
+The project version.
+Set through <version> when using Maven.
+sonar.sources	Comma-separated paths to directories containing source files.
+Compatible with Maven. If not set, the source code is retrieved from the default Maven source code location. 
+sonar.sourceEncoding	
+Set the source file encoding.
+Encoding of source files. Example of values: UTF-8, MacRoman, Shift_JIS. This property can be replaced by the standard property project.build.sourceEncoding in Maven projects.
+The list of available encodings depends on your JVM. See http://docs.oracle.com/javase/1.5.0/docs/guide/intl/encoding.doc.html (column : Canonical Name for java.nio API)
+sonar.language	Set the language of the source code to analyze. Browse the Plugin Library page to get the list of all available languages. If not set, a multi-language analysis will be triggered.
+sonar-project.properties
+sonar.projectKey=com.novelty.Impatus:ProjectName
+sonar.projectName=ProjectName service
+sonar.projectVersion=Impatus-1.0.0.33
+sonar.sources=C:\\Users\\jayapal\\git\\Impatus
+sonar.sourceEncoding=UTF-8
+sonar.language = java
+From the project root directory run the following command: sonar-runner
+make sure the local SonarQube server is installed and running
+Output
+C:\Users\jayapal\git\Impatus>sonar-runner
+C:\Sonar\sonar-runner-2.4
+SonarQube Runner 2.4
+Java 1.8.0_60 Oracle Corporation (64-bit)
+Windows 7 6.1 amd64
+INFO: Runner configuration file: C:\Sonar\sonar-runner-2.4\conf\sonar-runner.properties
+INFO: Project configuration file: C:\Users\jayapal\git\Impatus\sonar-project.properties
+INFO: Default locale: "en_US", source code encoding: "UTF-8"
+INFO: Work directory: C:\Users\jayapal\git\Impatus\.\.sonar
+INFO: SonarQube Server 5.2
+19:26:21.451 INFO - Load global repositories
+19:26:21.777 INFO - Load global repositories (done) | time=324ms
+19:26:21.795 INFO - User cache: C:\Users\jayapal\.sonar\cache
+19:26:22.076 INFO - Load plugins index
+19:26:22.092 INFO - Load plugins index (done) | time=16ms
+19:26:22.398 INFO - Process project properties
+19:26:22.784 INFO - Load project repositories
+19:26:23.129 INFO - Load project repositories (done) | time=345ms
+19:26:23.143 INFO - Apply project exclusions
+19:26:23.223 INFO - Load quality profiles
+19:26:23.384 INFO - Load quality profiles (done) | time=161ms
+19:26:23.389 INFO - Load active rules
+19:26:24.533 INFO - Load active rules (done) | time=1144ms
+19:26:24.561 INFO - Publish mode
+19:26:24.563 INFO - ------------- Scan cardrouting service
+19:26:24.805 INFO - Language is forced to java
+19:26:24.814 INFO - Load server rules
+19:26:24.964 INFO - Load server rules (done) | time=150ms
+19:26:25.041 INFO - Base dir: C:\Users\jayapal\git\Impatus
+19:26:25.041 INFO - Working dir: C:\Users\jayapal\git\Impatus\.sonar
+19:26:25.044 INFO - Source paths: .
+19:26:25.045 INFO - Source encoding: UTF-8, default locale: en_US
+19:26:25.045 INFO - Index files
+19:26:25.713 INFO - 17 files indexed
+19:26:25.777 INFO - Quality profile for java: Sonar way
+19:26:25.835 INFO - Sensor JavaSquidSensor
+19:26:26.633 INFO - Java Main Files AST scan...
+19:26:26.637 INFO - 17 source files to be analyzed
+19:26:28.171 INFO - 17/17 source files have been analyzed
+19:26:28.172 INFO - Java Main Files AST scan done: 1539 ms
+19:26:28.173 WARN - Java bytecode has not been made available to the analyzer. The org.sonar.jav
+a.bytecode.visitor.DependenciesVisitor@53125718, org.sonar.java.checks.UnusedPrivateMethodCheck@7
+7b21474 are disabled.
+19:26:28.177 INFO - Java Test Files AST scan...
+19:26:28.177 INFO - 0 source files to be analyzed
+19:26:28.178 INFO - Java Test Files AST scan done: 1 ms
+19:26:28.180 INFO - 0/0 source files have been analyzed
+19:26:28.237 INFO - Sensor JavaSquidSensor (done) | time=2402ms
+19:26:28.238 INFO - Sensor Lines Sensor
+19:26:28.243 INFO - Sensor Lines Sensor (done) | time=4ms
+19:26:28.243 INFO - Sensor QProfileSensor
+19:26:28.250 INFO - Sensor QProfileSensor (done) | time=7ms
+19:26:28.251 INFO - Sensor SurefireSensor
+19:26:28.252 INFO - parsing C:\Users\jayapal\git\Impatus\target\surefire-reports
+19:26:28.254 ERROR - Reports path not found or is not a directory: C:\Users\jayapal\git\Impatus-C
+hassis\target\surefire-reports
+19:26:28.257 INFO - Sensor SurefireSensor (done) | time=6ms
+19:26:28.259 INFO - Sensor SCM Sensor
+19:26:28.261 INFO - Sensor SCM Sensor (done) | time=2ms
+19:26:28.262 INFO - Sensor Code Colorizer Sensor
+19:26:28.273 INFO - Sensor Code Colorizer Sensor (done) | time=11ms
+19:26:28.274 INFO - Sensor CPD Sensor
+19:26:28.277 INFO - JavaCpdEngine is used for java
+19:26:28.360 INFO - Sensor CPD Sensor (done) | time=86ms
+19:26:28.644 INFO - Analysis reports generated in 247ms, dir size=51 KB
+19:26:28.773 INFO - Analysis reports compressed in 127ms, zip size=39 KB
+19:26:28.975 INFO - Analysis reports sent to server in 201ms
+19:26:28.979 INFO - ANALYSIS SUCCESSFUL, you can browse http://localhost:9000/dashboard/index/co
+m.novelty.chassis.Impatus:projectName
+19:26:28.982 INFO - Note that you will be able to access the updated dashboard once the server h
+as processed the submitted analysis report.
+19:26:28.986 INFO - More about the report processing at http://localhost:9000/api/ce/task?id=AVJ
+7Uxa_KKejGYAQOcEq
+INFO: ------------------------------------------------------------------------
+INFO: EXECUTION SUCCESS
+INFO: ------------------------------------------------------------------------
+Total time: 9.007s
+Final Memory: 7M/304M
+INFO: ------------------------------------------------------------------------
+Retrieve the URL from the output and view the results from the analysis
+
+Importing a Quality Profile
+Download the quality profile for the applicable language
+Language
+Link
+Javascript	js-gsd-js-94044.xml
+Login to the local SonarQube instance as administrator
+Navigate to the SonarQube console and click the Quality Gates tab
+Click the arrow next to the Create button and select Restore Profile
+Select the downloaded file
+Associate your project with the quality profile in the projects section
+NOTE: An analysis must've been previously run in order to associate to a quality profile
+Automating a pre-commit analysis
+The custom pre-commit script will perform an analysis on the project against the Quality Profile it is associated to. The project will need to pass inspection in order for the commit to complete.
+Download the following pre-commit script: pre-commit script
+cd into the hooks directory of the project
+cd <project-root>/.git/hooks
+Place the downloaded file into the directory
+When the build is successful the log will appear similar to below
+
+Retrieve the url to view the details of the analysis
+For Jenkins :
+JDK :1.8
+Maven :3.3.3
+Additional Properties :-s ./${settings} -Dmaven.repo.local=${WORKSPACE}/.maven/repo -Dsonar.profile="profile_Java"
